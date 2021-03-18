@@ -1,0 +1,23 @@
+#Play will fail on some servers if become: yes is not provided.
+#Playbook is gathering facts about all servers in inventory and comparing ansible_ssh_host entry with IPs listed in Server_Name variable.
+#If IP matches then it sets name as given in value for the key IP
+---
+  - name: motd playbook
+    hosts: all
+    become: yes
+    vars:
+      Server_Name:
+        192.168.78.129: DockerUbuntu
+        192.168.78.149: UB-M1
+        192.168.78.136: AnsibleCentOS
+        192.168.78.137: AnsibleCentOS2 
+        192.168.78.131: DockerCentOS
+        192.168.78.135: Ubuntu_Jumpserver
+
+    tasks:
+      - name: change hostnames
+        hostname: 
+          name: "{{item.value}}"
+        loop: "{{lookup('dict', Server_Name)}}"
+        when: item.key == ansible_ssh_host     
+
