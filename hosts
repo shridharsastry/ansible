@@ -45,7 +45,8 @@
 [ubuntu]
 192.168.78.129 #DockerUbuntu
 192.168.78.149 # UB_M1
-
+192.168.78.138 #AnsibleUbuntu
+192.168.78.139 #AnsibleUbuntu2
 
 [centos]
 192.168.78.136 #AnsibleCentOS

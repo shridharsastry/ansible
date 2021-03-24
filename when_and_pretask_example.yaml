@@ -23,18 +23,18 @@
     become: yes
     become_user: root
     tasks:
-      - name: ensure apache is at the latest version (CentOS)
+      - name: ensure apache is '{{ apache_state }}' (CentOS)
         yum:
           name: httpd
-          state: latest
+          state: '{{ apache_state }}'
         when: ansible_facts['distribution'] == "CentOS"
         notify: 
         - ensure apache is running (CentOS)
       
-      - name: ensure apache is at the latest version (Ubuntu)
+      - name: ensure apache is '{{ apache_state }}' (Ubuntu)
         apt:
           name: apache2
-          state: latest
+          state: '{{ apache_state }}'
         when: ansible_facts['distribution'] == "Ubuntu"
         notify:
         - ensure apache is running (Ubuntu)
