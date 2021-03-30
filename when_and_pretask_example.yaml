@@ -44,8 +44,10 @@
         service:
           name: httpd
           state: started
+        when: "{{ apache_state }}" == "present"
 
       - name: ensure apache is running (Ubuntu)
         service:
           name: apache2
           state: started
+        when: "{{ apache_state }}" == "present"

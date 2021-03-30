@@ -43,15 +43,12 @@
 #db-[99:101]-node.example.com
 
 [ubuntu]
-192.168.78.129 #DockerUbuntu
-192.168.78.149 # UB_M1
-192.168.78.138 #AnsibleUbuntu
-192.168.78.139 #AnsibleUbuntu2
+AnsibleUbuntu ansible_host = 192.168.78.132
+AnsibleUbuntu2 ansible_host = 192.168.78.141
 
 [centos]
-192.168.78.136 #AnsibleCentOS
-192.168.78.137 #AnsibleCentOS2 
-192.168.78.131 #DockerCentOS
+AnsibleCentOS ansible_host = 192.168.78.136
+AnsibleCentOS2 ansible_host = 192.168.78.137
 
 [local]
 
