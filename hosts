@@ -51,5 +51,4 @@ AnsibleCentOS ansible_host=192.168.78.136
 AnsibleCentOS2 ansible_host=192.168.78.137
 
 [local]
-
-#192.168.78.135 #Ubuntu_Jumpserver
+localhost ansible_connection=local

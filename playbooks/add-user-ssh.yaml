@@ -1,5 +1,5 @@
 ---
-  - hosts: all
+  - hosts: ubuntu
     vars:
       - devops_password: '$6$.BD0QlnnF$8dR/GcLuA7G6rL4T3jKehergFKILljq4xWAbdRDndO.cBIaCHcu4zR71NDGGrdoe3SVnY9B2XGKgYhD66Ww1N.'
     gather_facts: no
@@ -27,7 +27,7 @@
       lineinfile:
         dest=/etc/ssh/sshd_config
         regexp='^PasswordAuthentication'
-        line="PasswordAuthentication no"
+        line="PasswordAuthentication yes"
         state=present
         backup=yes
 
@@ -35,7 +35,7 @@
       lineinfile:
         dest=/etc/ssh/sshd_config
         regexp='^PermitRootLogin'
-        line="PermitRootLogin no"
+        line="PermitRootLogin yes"
         state=present
         backup=yes
       notify:

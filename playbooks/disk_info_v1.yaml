@@ -1,0 +1,40 @@
+---
+#!/usr/bin/env ansible-playbook
+- name: Lets look at some disks
+  hosts: ubuntu
+  become: true
+  gather_facts: yes
+  tasks:
+  - name: rescan all scsi hosts
+    shell: echo "- - -" | tee /sys/class/scsi_host/host*/scan
+
+  - name: Collect only facts about hardware
+    setup:
+      gather_subset:
+      - hardware
+    tags: disk_list
+
+  - name: Create GPT partition table
+    parted:
+      device: "/dev/{{ item }}"
+      label: gpt
+      number: 1
+      state: present
+      fs_type: ext4
+    when: item != 'sda'
+    loop: "{{ ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list }}"
+  
+  - name: make ext4 filesystem on "{{ item }}"
+    filesystem:
+      fstype: ext4
+      dev: /dev/{{item}}1
+    loop: "{{ ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list }}"
+  
+  - name: Mount up device by label
+    mount:
+      path: /mnt/{{item}}1 
+      src: /dev/{{item}}1
+      fstype: ext4
+      state: mounted
+    when: item != 'sda'
+    loop: "{{ ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list }}"
