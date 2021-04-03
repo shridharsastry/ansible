@@ -1,18 +1,18 @@
 ---
 #!/usr/bin/env ansible-playbook
 - name: Lets look at some disks
-  hosts: ubuntu
+  hosts: centos
   become: true
   gather_facts: yes
   tasks:
   - name: rescan all scsi hosts
     shell: echo "- - -" | tee /sys/class/scsi_host/host*/scan
 
-  - name: Collect only facts about hardware
-    setup:
-      gather_subset:
-      - hardware
-    tags: disk_list
+  # - name: Collect only facts about hardware
+  #   setup:
+  #     gather_subset:
+  #     - hardware
+  #   tags: disk_list
 
   - name: Create GPT partition table
     parted:

@@ -1,0 +1,55 @@
+---
+#!/usr/bin/env ansible-playbook
+- name: Lets look at some disks
+  hosts: centos
+  become: true
+  gather_facts: yes
+  vars:
+    devices: []
+  tasks:
+
+  - name: rescan all scsi hosts
+    shell: echo "- - -" | tee /sys/class/scsi_host/host*/scan
+
+
+
+  - name: Build a list of all devices except sda
+    set_fact:
+      devices: "{{ devices }} + ['/dev/' + '{{ item }}']"
+    when: item != 'sda'
+    loop: "{{ ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list }}"    
+
+  - name: Creates a volume group 
+    lvg:
+      vg: vg1
+      pvs: "{{ devices }}"
+      pesize: 32
+  
+  - name: Create Logical Volume.
+    lvol:
+      vg: vg1
+      lv: lv1
+      size: 10G
+      active: yes
+      force: no
+      state: present
+    
+  - name: Create a filesystem on lvm "/dev/mapper/vg1-lv1".
+    filesystem:
+      fstype: ext4
+      dev: "/dev/mapper/vg1-lv1"
+      force: no
+
+  - name: Create a directory to mount the filesystem.
+    file:
+      path: "/mnt/lvol1"
+      state: directory
+      mode: '0755'
+
+  - name: Mount the created filesystem.
+    mount:
+      path: "/mnt/lvol1"
+      src: "/dev/mapper/vg1-lv1"
+      fstype: "ext4"
+      opts: rw,nosuid,noexec
+      state: mounted
