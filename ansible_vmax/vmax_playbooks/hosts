@@ -1,0 +1,13 @@
+[win]
+10.155.201.217
+#10.155.201.72
+
+[win:vars]
+ansible_user=ansible
+ansible_password=@Pa33w0rd
+ansible_connection=winrm
+ansible_winrm_server_cert_validation=ignore
+ansible_winrm_port = 5985
+#ansible_python_interpreter = C:\Users\tech.sridhar.shastry\AppData\Local\Programs\Python\Python38-32
+
+[vmax]

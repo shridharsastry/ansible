@@ -1,0 +1,47 @@
+# This playbook will expand all luns whose lun WWN is listed in vars_files/lun_SNs_for_expansion.yml to the size listed.
+# Playbook will ask for userid/password and uses information stored in vars_files/connection.yml to connect to specific VMAX SN, etc. 
+# Please update values in vars_files/lun_SNs_for_expansion.yml before running this playbook.
+# Only expansion is allowed
+---
+- name: Storage de-allocation runbook
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vars_deallocation.yml
+    - credentials.yml
+
+
+  collections:
+    - dellemc.powermax
+
+  vars:
+    input: &uni_connection_vars
+      unispherehost: "{{unispherehost}}"
+      universion: "{{universion}}"
+      verifycert: "{{verifycert}}"
+      user: "{{username}}"
+      password: "{{password}}"
+      serial_no: "{{serial_no}}"
+
+  tasks:
+
+  - name: Delete MV with hostgroup
+    dellemc_powermax_maskingview:
+      <<: *uni_connection_vars
+      mv_name: "{{mv_name}}"
+      state: "{{ state }}"
+  
+  - name: Delete host
+    dellemc_powermax_host:
+      <<: *uni_connection_vars
+      host_name: "{{ item.key }}"
+      state: "{{ state }}"
+      initiator_state: "absent-in-host"
+    loop: "{{ server_details | dict2items }}"
+
+  - name: Delete Storage group "{{sg_name}}"
+    dellemc_powermax_storagegroup:
+      <<: *uni_connection_vars
+      sg_name: "{{sg_name}}"
+      state: "{{state}}"
+

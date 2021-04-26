@@ -1,0 +1,55 @@
+# This playbook will expand all luns whose lun WWN is listed in vars_files/lun_SNs_for_expansion.yml to the size listed.
+# Playbook will ask for userid/password and uses information stored in vars_files/connection.yml to connect to specific VMAX SN, etc. 
+# Please update values in vars_files/lun_SNs_for_expansion.yml before running this playbook.
+# Only expansion is allowed
+# Use --skip-tags to skip specific task/playbook
+---
+- name: Rename Luns
+  hosts: localhost
+  connection: local
+  vars_files:
+    - lun_SNs_for_removal.yml
+    - credentials.yml
+
+  collections:
+    - dellemc.powermax
+
+  vars:
+    input: &uni_connection_vars
+      unispherehost: "{{unispherehost}}"
+      universion: "{{universion}}"
+      verifycert: "{{verifycert}}"
+      user: "{{username}}"
+      password: "{{password}}"
+      serial_no: "{{serial_no}}"
+
+  tasks:
+  - name: Get volume details and remove same volumes from {{sg_name}}
+    block:
+      - name: Get volume details
+        register: temp_result
+        dellemc_powermax_volume:
+          <<: *uni_connection_vars
+          sg_name: "{{sg_name}}"
+          state: 'present'
+          vol_wwn: "{{item}}"
+        loop: "{{ lun_SNs }}" 
+
+      - name: Remove volume(s) from existing SG
+        dellemc_powermax_storagegroup:
+          <<: *uni_connection_vars
+          sg_name: "{{sg_name}}"
+          state: "present"
+          volumes:
+          - vol_id: "{{item}}"
+          vol_state: "absent-in-group"
+        loop: "{{temp_result.results | map(attribute='volume_details.volumeId') | list}}"
+    rescue:
+      - name: Print error
+        debug:
+          msg: "Volumes with WWN {{item}} not part of {{sg_name}}"
+        loop: "{{lun_SNs}}"
+
+
+
+

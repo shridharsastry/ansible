@@ -1,0 +1,34 @@
+# This playbook will expand all luns whose lun WWN is listed in vars_files/lun_SNs_for_expansion.yml to the size listed.
+# Playbook will ask for userid/password and uses information stored in vars_files/connection.yml to connect to specific VMAX SN, etc. 
+# Please update values in vars_files/lun_SNs_for_expansion.yml before running this playbook.
+# Only expansion is allowed
+---
+- name: Expand luns based on WWNs provided
+  hosts: localhost
+  connection: local
+  vars_files:
+    - lun_SNs_for_expansion.yml
+    - credentials.yml
+
+  collections:
+    - dellemc.powermax
+
+  vars:
+    input: &uni_connection_vars
+      unispherehost: "{{unispherehost}}"
+      universion: "{{universion}}"
+      verifycert: "{{verifycert}}"
+      user: "{{username}}"
+      password: "{{password}}"
+      serial_no: "{{serial_no}}"
+
+  tasks:
+
+    - name: Expanding volume size
+      dellemc_powermax_volume:
+        <<: *uni_connection_vars
+        size:  "{{ lun_size }}"
+        cap_unit: "{{ cap_unit }}"
+        vol_wwn: "{{ item }}"
+        state: 'present'
+      loop: "{{ lun_SNs }}"

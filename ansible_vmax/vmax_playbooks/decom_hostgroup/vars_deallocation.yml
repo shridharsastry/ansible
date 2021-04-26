@@ -1,0 +1,34 @@
+# vars file for lun_expansion.yml
+
+#Basic info 
+serial_no: "000197700576"
+unispherehost: "10.155.201.217"
+universion: "92"
+verifycert: false
+
+# Server related information
+server_details: {
+
+    'TEST_HOST_1': ['10000000c9abcaba','10000000c9abcabb'],
+    'TEST_HOST_2': ['10000000c9abcabc','10000000c9abcabd']
+
+  }
+host_grp_name: "TEST_HOSTS" 
+host_type: "default"
+
+# Storage related information
+sg_name: "TEST_SG1"
+no_of_luns: 2
+lun_size: 2
+cap_unit: "GB"
+vol_name: "TEST_0576_"
+
+# PG related information
+pg_name: "PG1"
+
+#MV related information
+mv_name: "TEST_MV1"
+
+# State information present means ansible will make sure resource exists if not create
+# State information absent means ansible will make sure resource doesn't exist
+state: "absent"

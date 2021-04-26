@@ -1,0 +1,56 @@
+---
+- name: Get SRP info
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vars_files/connection.yml
+    - vars_files/credentials.yml
+  collections:
+    - dellemc.powermax
+  tasks:
+    - name: Get list of Storage Resource Pools
+      dellemc_powermax_gatherfacts:
+        unispherehost: "{{unispherehost}}"
+        universion: "{{universion}}"
+        verifycert: "{{verifycert}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        serial_no: "{{serial_no}}"
+        gather_subset:
+          - srp
+    #   register: srp_info
+    # - debug: 
+    #     var: srp_info
+    
+    - name: Get list of Port Groups
+      dellemc_powermax_gatherfacts:
+        unispherehost: "{{unispherehost}}"
+        universion: "{{universion}}"
+        verifycert: "{{verifycert}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        serial_no: "{{serial_no}}"
+        gather_subset:
+          - pg
+    #   register: pg_info
+    # - debug:
+    #     var: pg_info | regex_search('^(PG1*)$', multiline=True)
+    #   #loop: "{{ pg_info | regex_search('(PG1)') }}"
+    
+    - name: Get list of volumes and storage groups with filter
+      dellemc_powermax_gatherfacts:
+        unispherehost: "{{unispherehost}}"
+        universion: "{{universion}}"
+        verifycert: "{{verifycert}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        serial_no: "{{serial_no}}"
+        gather_subset:
+          - vol
+        filters:
+          - filter_key: "wwn"
+            filter_operator: "equal"
+            filter_value: "60000970000197700576533032314136"
+      register: vol_info
+    - debug:
+        var: vol_info

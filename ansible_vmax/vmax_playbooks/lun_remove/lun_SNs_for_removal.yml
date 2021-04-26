@@ -1,0 +1,12 @@
+# vars file for lun_expansion.yml
+
+serial_no: "000197700576"
+unispherehost: "10.155.201.217"
+universion: "92"
+verifycert: false
+
+lun_SNs:
+  - "60000970000197700576533032363941"
+  - "60000970000197700576533032363942"
+
+sg_name: "TEST_SG1"

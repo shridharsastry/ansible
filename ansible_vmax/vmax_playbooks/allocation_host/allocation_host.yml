@@ -1,0 +1,82 @@
+# This playbook will expand all luns whose lun WWN is listed in vars_files/lun_SNs_for_expansion.yml to the size listed.
+# Playbook will ask for userid/password and uses information stored in vars_files/connection.yml to connect to specific VMAX SN, etc. 
+# Please update values in vars_files/lun_SNs_for_expansion.yml before running this playbook.
+# Only expansion is allowed
+# Use --skip-tags to skip specific task/playbook
+---
+- name: Storage allocation runbook
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vars_allocation.yml
+    - credentials.yml
+
+  collections:
+    - dellemc.powermax
+  
+  vars:
+    input: &uni_connection_vars
+      unispherehost: "{{unispherehost}}"
+      universion: "{{universion}}"
+      verifycert: "{{verifycert}}"
+      user: "{{username}}"
+      password: "{{password}}"
+      serial_no: "{{serial_no}}"
+
+  tasks:
+
+  - name: Create empty storage group
+    dellemc_powermax_storagegroup:
+      <<: *uni_connection_vars
+      sg_name: "{{ sg_name }}"
+      service_level:  "Diamond"
+      srp: "SRP_1"
+      compression: True
+      state: "present"
+
+  - name: Get details of the Storage Group 
+    dellemc_powermax_storagegroup:
+      <<: *uni_connection_vars
+      sg_name: "{{sg_name}}"    
+      state: "present" 
+    register: storage_details
+  - set_fact:
+      all_volumes_count: "{{storage_details.storage_group_details.num_of_vols | int}}"
+
+  - name: Create volumes
+    dellemc_powermax_volume:
+      <<: *uni_connection_vars
+      vol_name: "{{vol_name}}{{item}}"
+      sg_name: "{{sg_name}}"
+      size: "{{ lun_size }}"
+      cap_unit: "{{cap_unit}}"
+      state: 'present'
+    loop: "{{ range(all_volumes_count|int + 1, all_volumes_count|int + 1 + no_of_luns|int) |list }}"
+    tags: create_vol
+
+  
+  - name: Create host with host_type {{ host_type }}
+    dellemc_powermax_host:
+      <<: *uni_connection_vars
+      host_name: "{{ item.key }}"
+      host_type: "{{ host_type }}"
+      initiators: "{{ item.value }}"
+      state: 'present'
+      initiator_state: "present-in-host"
+      host_flags:
+        consistent_lun: True
+    loop: "{{ server_details | dict2items }}"
+
+
+  - name: Create MV with host
+    dellemc_powermax_maskingview:
+      <<: *uni_connection_vars
+      mv_name: "{{mv_name}}"
+      portgroup_name: "{{pg_name}}"
+      host_name: "{{ item.key }}"
+      sg_name: "{{sg_name}}"
+      state: "present"
+    loop: "{{ server_details | dict2items }}"
+  
+
+

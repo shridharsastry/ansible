@@ -1,0 +1,51 @@
+# This playbook will expand all luns whose lun WWN is listed in vars_files/lun_SNs_for_expansion.yml to the size listed.
+# Playbook will ask for userid/password and uses information stored in vars_files/connection.yml to connect to specific VMAX SN, etc. 
+# Please update values in vars_files/lun_SNs_for_expansion.yml before running this playbook.
+# Only expansion is allowed
+# Use --skip-tags to skip specific task/playbook
+---
+- name: Rename Luns
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vars_allocation.yml
+    - credentials.yml
+
+  collections:
+    - dellemc.powermax
+
+  vars:
+    input: &uni_connection_vars
+      unispherehost: "{{unispherehost}}"
+      universion: "{{universion}}"
+      verifycert: "{{verifycert}}"
+      user: "{{username}}"
+      password: "{{password}}"
+      serial_no: "{{serial_no}}"
+
+  tasks:
+
+  - name: Get details of the Storage Group 
+    dellemc_powermax_storagegroup:
+      <<: *uni_connection_vars
+      sg_name: "{{sg_name}}"    
+      state: "present" 
+    register: storage_details
+  - debug: 
+      msg: "{{ storage_details }}"
+  # .storage_group_volumes_details[0].volumeId
+  # The set_fact fetches the Id's of all the volumes from the storage group details and creates a list.
+  - set_fact:
+      all_volumes_Id: "{{storage_details.storage_group_volumes_details | list}}"
+
+
+  # This task gets the details of all the volumes. This is because the volume details has the attribute volume_identifier which has the name of the volume.
+  - name: Rename volumes
+    dellemc_powermax_volume:
+      <<: *uni_connection_vars
+      vol_id: "{{item}}"
+      new_name: "{{ vol_name }}{{ item }}"
+      state: 'present'
+    loop: "{{all_volumes_Id}}"
+
+      
