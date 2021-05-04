@@ -1,8 +1,4 @@
-# This playbook will expand all luns whose lun WWN is listed in vars_files/lun_SNs_for_expansion.yml to the size listed.
-# Playbook will ask for userid/password and uses information stored in vars_files/connection.yml to connect to specific VMAX SN, etc. 
-# Please update values in vars_files/lun_SNs_for_expansion.yml before running this playbook.
-# Only expansion is allowed
-# Use --skip-tags to skip specific task/playbook
+
 ---
 - name: Storage allocation runbook
   hosts: localhost
