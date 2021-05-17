@@ -1,0 +1,7 @@
+---
+  - import_playbook: ./Remove_storage/remove_virtual_volume.yml
+  - import_playbook: ./Remove_storage/delete_virtual_volume.yml
+  - import_playbook: ./Remove_storage/delete_device.yml
+  - import_playbook: ./Remove_storage/delete_extents.yml
+  - import_playbook: ./Remove_storage/delete_storage_volumes.yml
+

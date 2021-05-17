@@ -1,0 +1,30 @@
+---
+- name: Remove virtual volume playbook
+  hosts: localhost
+  connection: local
+  vars_files:
+    - ~/ansible/vplex_playbooks/Remove_storage/var.yml
+    - ~/ansible/vplex_playbooks/credentials.yml
+
+  vars:
+    input: &vplex_connection_vars
+      vplexhost: "{{ vplexhost }}"
+      vplexuser: "{{ vplexuser }}"
+      vplexpassword: "{{ vplexpassword }}"
+      verifycert: "{{ verifycert }}"
+      cluster_name: "{{ cluster_name }}"
+
+
+  collections:
+    - dellemc.vplex
+  
+  tasks:
+    - name: Remove virtual volumes from a storage view
+      dellemc_vplex_storage_view:
+        <<: *vplex_connection_vars
+        storage_view_name: "{{storage_view_name}}"
+        virtual_volumes: "{{ volume_names }}"
+        virtual_volume_state: "absent-in-view"
+        state: "present"
+
+

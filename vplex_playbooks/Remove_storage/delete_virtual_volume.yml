@@ -1,0 +1,28 @@
+---
+- name: Remove virtual volume playbook
+  hosts: localhost
+  connection: local
+  vars_files:
+    - ~/ansible/vplex_playbooks/Remove_storage/var.yml
+    - ~/ansible/vplex_playbooks/credentials.yml
+
+  vars:
+    input: &vplex_connection_vars
+      vplexhost: "{{ vplexhost }}"
+      vplexuser: "{{ vplexuser }}"
+      vplexpassword: "{{ vplexpassword }}"
+      verifycert: "{{ verifycert }}"
+      cluster_name: "{{ cluster_name }}"
+
+
+  collections:
+    - dellemc.vplex
+  
+  tasks:
+
+    - name: Delete virtual volume using name
+      dellemc_vplex_virtual_volume:
+        <<: *vplex_connection_vars
+        virtual_volume_name: "{{ item }}"
+        state: "absent"
+      loop: "{{ volume_names }}"
